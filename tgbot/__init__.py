@@ -4,7 +4,7 @@ import pathlib
 from uuid import uuid4
 import zipfile
 from setuptools import Command
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, PassportElementErrorSelfie, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
     CallbackContext,
@@ -56,6 +56,8 @@ class Bot(Updater):
                     RegexHandler(r"^\d{4}$", self.birth)
                 ],
                 TASKS: [
+                    MessageHandler((Filters.text & Filters.document) & not_start, self.answer_sent_user),
+                    MessageHandler((Filters.regex("^(Ha|Yo'q)"), self.yes_no)),
                     MessageHandler(Filters.document & not_start, self.tasks),
                     MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
                     # MessageHandler((Filters.text & not_start))
@@ -78,6 +80,84 @@ class Bot(Updater):
         self.start_polling()
         self.idle()
     
+    def answer_sent_user(self, update:Update, context:CallbackContext):
+        user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+        if update.message.text:
+            context.user_data['current_data'] = update.message.text
+            update.message.reply_text("afsdfsdfsdf", reply_markup=ReplyKeyboardMarkup(
+                [
+                    [
+                        "Ha", "Yo'q"
+                    ]
+                ]
+            ))
+        
+        elif update.message.document:
+            context.user_data['current_data'] = update.message.document.get_file().download(f"files/{user.curent_task().id}_{str(uuid4())}_{update.message.document.file_name}")
+            update.message.reply_text("afsdfsdfsdf", reply_markup=ReplyKeyboardMarkup(
+                [
+                    [
+                        "Ha", "Yo'q"
+                    ]
+                ]
+            ))
+        
+    def yes_no(self, update:Update, context:CallbackContext):
+        user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+        
+        if update.message.text.lower() == "ha":
+            data = context.user_data['current_data']
+            if isinstance(data, str):
+                if user:
+                    if user.tasks().count() < tasks_number:
+                        filename = f"files/{user.curent_task().id}_{str(uuid4())}_answer.txt"
+                        file = open(filename, 'w')
+                        file.write(data)
+                        file.close()
+                        user.add_task(filename)
+                        c = user.curent_task()
+                        if c:
+                            update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                            return TASKS
+                        else:
+                            update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                            zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
+                            tasks = user.tasks()
+                            for task in tasks:
+                                print(f"{root}")
+                                zipFile.write(os.path.join(root, task.document), os.path.relpath(os.path.join(root, task.document)))
+                                os.remove(task.document)
+                            zipFile.close()
+                            for admin in admins:
+                                context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
+
+
+                    else:   
+                        update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+            elif isinstance(data) :
+                if user:
+                    if user.tasks().count() < tasks_number:
+                        file = data
+                        user.add_task(file)
+                        c = user.curent_task()
+                        if c:
+                            update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                            return TASKS
+                        else:
+                            update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                            zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
+                            tasks = user.tasks()
+                            for task in tasks:
+                                zipFile.write(os.path.join(root, task.document), os.path.relpath(os.path.join(root, task.document)))
+                                os.remove(task.document)
+                            zipFile.close()
+                            for admin in admins:
+                                context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
+                    else:   
+                        update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+        elif update.message.text.lower() == "yo'q":
+            update.message.reply_html( user.curent_task().description + "<b>.docx .pdf text</b> formatida yuboring!")
+            return TASKS
 
     def start(self, update:Update, context:CallbackContext):
         """start a new conversation"""
