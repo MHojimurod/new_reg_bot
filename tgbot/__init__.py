@@ -56,13 +56,16 @@ class Bot(Updater):
                     RegexHandler(r"^\d{4}$", self.birth)
                 ],
                 TASKS: [
-                    MessageHandler(Filters.document & not_start, self.tasks)
+                    MessageHandler(Filters.document & not_start, self.tasks),
+                    MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
+                    # MessageHandler((Filters.text & not_start))
                 ],
                 POST: [
                     MessageHandler(Filters.photo, self.photo),
                     CommandHandler('skip', self.skip),
                     MessageHandler(Filters.text & not_start, self.text),
-                    CallbackQueryHandler(self.send, pattern="^send_current_post")
+                    CallbackQueryHandler(self.send, pattern="^send_current_post"),
+                    MessageHandler((Filters.all & not_start), self.error_type)
                 ]
             },
             [
@@ -88,7 +91,7 @@ class Bot(Updater):
             if c:
 
                 update.message.reply_text("Topshiriqlarni yuboring!")
-                update.message.reply_text(c.description)
+                update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
                 return TASKS
             else:
                 update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -129,7 +132,7 @@ class Bot(Updater):
                 update.message.reply_text("Iltimos endi topshiriqlarni yuboring!")
                 c = user.curent_task()
                 if c:
-                    update.message.reply_text(c.description)
+                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
                     return TASKS
                 else:
                     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -150,7 +153,39 @@ class Bot(Updater):
                 user.add_task(file)
                 c = user.curent_task()
                 if c:
-                    update.message.reply_text(c.description)
+                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                    return TASKS
+                else:
+                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
+                    tasks = user.tasks()
+                    for task in tasks:
+                        zipFile.write(os.path.join(root, task.document), os.path.relpath(os.path.join(root, task.document)))
+                        os.remove(task.document)
+                    zipFile.close()
+                    for admin in admins:
+                        context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
+                    
+
+            else:   
+                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+    
+    def error_type(self, update:Update, context:CallbackContext):
+        update.message.reply_html("Kechirasiz javoblaringizni faqat <b>.docx .pdf text</b> formatida yubora olasiz!")
+
+
+    def task_text(self, update:Update, context:CallbackContext):
+        user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+        if user:
+            if user.tasks().count() < tasks_number:
+                filename = f"files/{str(uuid4())}_answer.txt"
+                file = open(filename, 'w')
+                file.write(update.message.text)
+                file.close()
+                user.add_task(filename)
+                c = user.curent_task()
+                if c:
+                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
                     return TASKS
                 else:
                     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -167,7 +202,9 @@ class Bot(Updater):
 
             else:   
                 update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
-        
+    
+
+
     def post(self, update:Update, context:CallbackContext):
         if update.message.from_user.id in admins:
             context.user_data['post'] = {}
