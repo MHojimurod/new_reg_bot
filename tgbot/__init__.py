@@ -104,13 +104,11 @@ class Bot(Updater):
         
     def yes_no(self, update:Update, context:CallbackContext):
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
-        
         if update.message.text.lower() == "ha":
             data = context.user_data['current_data']
             if isinstance(data, str):
                 if user:
                     if user.tasks().count() < tasks_number:
-
                         filename = f"files/{user.curent_task().id}_{str(uuid4())}_answer.txt"
                         file = open(filename, 'w')
                         file.write(data)
@@ -118,7 +116,7 @@ class Bot(Updater):
                         user.add_task(filename)
                         c = user.curent_task()
                         if c:
-                            update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                            update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                             return TASKS
                         else:
                             update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -142,7 +140,7 @@ class Bot(Updater):
                         user.add_task(file)
                         c = user.curent_task()
                         if c:
-                            update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                            update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                             return TASKS
                         else:
                             update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -157,7 +155,7 @@ class Bot(Updater):
                     else:   
                         update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
         elif update.message.text.lower() == "yo'q":
-            update.message.reply_html( user.curent_task().description + "<b>.docx .pdf text</b> formatida yuboring!")
+            update.message.reply_html( user.curent_task().description + "<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
             return TASKS
 
     def start(self, update:Update, context:CallbackContext):
@@ -172,7 +170,7 @@ class Bot(Updater):
             if c:
 
                 update.message.reply_text("Topshiriqlarni yuboring!")
-                update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                 return TASKS
             else:
                 update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -213,7 +211,7 @@ class Bot(Updater):
                 update.message.reply_text("Muvaffaqiyatli ro'yxatdan o'tdingiz!\nIltimos endi topshiriqlarni yuboring!")
                 c = user.curent_task()
                 if c:
-                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
                     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -234,7 +232,7 @@ class Bot(Updater):
                 user.add_task(file)
                 c = user.curent_task()
                 if c:
-                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
                     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
@@ -252,7 +250,7 @@ class Bot(Updater):
                 update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
     
     def error_type(self, update:Update, context:CallbackContext):
-        update.message.reply_html("Kechirasiz javoblaringizni faqat <b>.docx .pdf text</b> formatida yubora olasiz!")
+        update.message.reply_html("Kechirasiz javoblaringizni faqat <b>.docx .pdf text</b> formatida yubora olasiz!", reply_markup=ReplyKeyboardRemove())
 
 
     def task_text(self, update:Update, context:CallbackContext):
@@ -266,7 +264,7 @@ class Bot(Updater):
                 user.add_task(filename)
                 c = user.curent_task()
                 if c:
-                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
+                    update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
                     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
