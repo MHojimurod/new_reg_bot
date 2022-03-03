@@ -90,7 +90,7 @@ class Bot(Updater):
                         "Ha", "Yo'q"
                     ]
                 ]
-            ))
+            , resize_keyboard=True))
         
         elif update.message.document:
             context.user_data['current_data'] = update.message.document.get_file().download(f"files/{user.curent_task().id}_{str(uuid4())}_{update.message.document.file_name}")
@@ -100,7 +100,7 @@ class Bot(Updater):
                         "Ha", "Yo'q"
                     ]
                 ]
-            ))
+            , resize_keyboard=True))
         
     def yes_no(self, update:Update, context:CallbackContext):
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
