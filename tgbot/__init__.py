@@ -56,7 +56,7 @@ class Bot(Updater):
                     RegexHandler(r"^\d{4}$", self.birth)
                 ],
                 TASKS: [
-                    MessageHandler(Filters.regex("^(Ha|Yo'q)"), self.yes_no),
+                    MessageHandler(Filters.regex("^(Ha|Qayta yuborish)"), self.yes_no),
                     MessageHandler((Filters.text | Filters.document), self.answer_sent_user),
                     MessageHandler(Filters.document & not_start, self.tasks),
                     MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
@@ -84,20 +84,20 @@ class Bot(Updater):
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
         if update.message.text:
             context.user_data['current_data'] = update.message.text
-            update.message.reply_text("afsdfsdfsdf", reply_markup=ReplyKeyboardMarkup(
+            update.message.reply_text("To'liq javobingiz shumi yoki qayta yuboarsizmi!", reply_markup=ReplyKeyboardMarkup(
                 [
                     [
-                        "Ha", "Yo'q"
+                        "Ha", "Qayta yuborish"
                     ]
                 ]
             , resize_keyboard=True))
         
         elif update.message.document:
             context.user_data['current_data'] = update.message.document.get_file().download(f"files/{user.curent_task().id}_{str(uuid4())}_{update.message.document.file_name}")
-            update.message.reply_text("afsdfsdfsdf", reply_markup=ReplyKeyboardMarkup(
+            update.message.reply_text("To'liq javobingiz shumi yoki qayta yuboarsizmi!", reply_markup=ReplyKeyboardMarkup(
                 [
                     [
-                        "Ha", "Yo'q"
+                        "Ha", "Qayta yuborish"
                     ]
                 ]
             , resize_keyboard=True))
@@ -133,7 +133,7 @@ class Bot(Updater):
 
                     else:   
                         update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
-            elif isinstance(data) :
+            else:
                 if user:
                     if user.tasks().count() < tasks_number:
                         file = data
@@ -154,7 +154,7 @@ class Bot(Updater):
                                 context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
                     else:   
                         update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
-        elif update.message.text.lower() == "yo'q":
+        elif update.message.text.lower() == "Qayta yuborish":
             update.message.reply_html( user.curent_task().description + "<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
             return TASKS
 
