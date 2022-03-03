@@ -17,6 +17,7 @@ class User(models.Model):
     
     class Meta:
         db_table = "Foydalanuvchilar"
+        verbose_name = "Foydalanuvchilar"
 
 
     def add_task(self, doc):
@@ -27,6 +28,8 @@ class User(models.Model):
         # return Question.objects.filter(id=self.tasks().count()).first()
         questions = Question.objects.order_by('id').all()
         return questions[self.tasks().count()] if questions.count() > self.tasks().count() else None
+    def __str__(self):
+        return self.name
 
 class Task(models.Model):
     number:int = models.IntegerField(default=0)
@@ -39,9 +42,15 @@ class Region(models.Model):
     name:str = models.CharField(max_length=255)
     class Meta:
         db_table = "Viloyatlar"
+        verbose_name = "Viloyatlar"
+    def __str__(self):
+        return self.name
 
 
 class Question(models.Model):
     description:str = models.TextField()
+    def __str__(self):
+        return str(self.id)
     class Meta:
         db_table = "Topshiriqlar"
+        verbose_name = "Topshiriqlar"
