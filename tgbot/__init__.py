@@ -21,7 +21,7 @@ from utils import distribute
 
 
 root = pathlib.Path(__file__).resolve().parent.parent
-admins = [1238844694]
+admins = [1238844694,429121485]
 
 
 NAME, NUMBER, REGION, BIRTH, TASKS, POST = range(6)
@@ -129,7 +129,7 @@ class Bot(Updater):
             year = int(update.message.text.strip())
             if year > minimum_year and year < maximum_year:
                 user:User = User.objects.create(chat_id=update.message.from_user.id, **context.user_data['register'], birthday=year)
-                update.message.reply_text("Iltimos endi topshiriqlarni yuboring!")
+                update.message.reply_text("Muvaffaqiyatli ro'yxatdan o'tdingiz!\nIltimos endi topshiriqlarni yuboring!")
                 c = user.curent_task()
                 if c:
                     update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!")
