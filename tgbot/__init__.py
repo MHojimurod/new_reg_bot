@@ -143,7 +143,7 @@ class Bot(Updater):
                             update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                             return TASKS
                         else:
-                            update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                            update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
                             zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
                             tasks = user.tasks()
                             for task in tasks:
@@ -153,7 +153,7 @@ class Bot(Updater):
                             for admin in admins:
                                 context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
                     else:   
-                        update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                        update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", , reply_markup=ReplyKeyboardRemove())
         elif update.message.text.lower() == "Qayta yuborish":
             update.message.reply_html( user.curent_task().description + "<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
             return TASKS
@@ -235,7 +235,7 @@ class Bot(Updater):
                     update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
                     zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
                     tasks = user.tasks()
                     for task in tasks:
@@ -267,7 +267,7 @@ class Bot(Updater):
                     update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
                     zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
                     tasks = user.tasks()
                     for task in tasks:
@@ -280,7 +280,7 @@ class Bot(Updater):
                     
 
             else:   
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
     
 
 
@@ -292,11 +292,11 @@ class Bot(Updater):
     
     def skip(self, update:Update, context:CallbackContext):
         context.user_data['post']['image'] = None
-        update.message.reply_text("Iltimos endi post uchun matn yuboring!")
+        update.message.reply_text("Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
         return POST
     def photo(self, update:Update, context:CallbackContext):
         context.user_data['post']['image'] = update.message.photo
-        update.message.reply_text("Iltimos endi post uchun matn yuboring!")
+        update.message.reply_text("Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
         return POST
     
     def text(self, update:Update, context:CallbackContext):
