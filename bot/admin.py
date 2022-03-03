@@ -4,5 +4,4 @@ from .models import *
 
 admin.site.register(User)
 admin.site.register(Region)
-admin.site.register(Task)
 admin.site.register(Question)

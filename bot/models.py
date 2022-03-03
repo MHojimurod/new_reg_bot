@@ -14,6 +14,9 @@ class User(models.Model):
     birthday:int = models.IntegerField()
     def tasks(self) -> "QuerySet[Task]":
         return Task.objects.filter(user=self)
+    
+    class Meta:
+        db_table = "Foydalanuvchilar"
 
 
     def add_task(self, doc):
@@ -34,7 +37,11 @@ class Task(models.Model):
 
 class Region(models.Model):
     name:str = models.CharField(max_length=255)
+    class Meta:
+        db_table = "Viloyatlar"
 
 
 class Question(models.Model):
     description:str = models.TextField()
+    class Meta:
+        db_table = "Topshiriqlar"
