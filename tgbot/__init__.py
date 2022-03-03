@@ -56,10 +56,10 @@ class Bot(Updater):
                     RegexHandler(r"^\d{4}$", self.birth)
                 ],
                 TASKS: [
+                    MessageHandler(Filters.regex("^(Ha|Yo'q)"), self.yes_no),
                     MessageHandler((Filters.text | Filters.document), self.answer_sent_user),
                     MessageHandler(Filters.document & not_start, self.tasks),
                     MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
-                    MessageHandler(Filters.regex("^(Ha|Yo'q)"), self.yes_no),
                     # MessageHandler((Filters.text & not_start))
                 ],
                 POST: [
