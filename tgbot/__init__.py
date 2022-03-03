@@ -149,7 +149,7 @@ class Bot(Updater):
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
         if user:
             if user.tasks().count() < tasks_number:
-                file = update.message.document.get_file().download(f"files/{user.curent_task().id}{str(uuid4())}_{update.message.document.file_name}")
+                file = update.message.document.get_file().download(f"files/{user.curent_task().id}_{str(uuid4())}_{update.message.document.file_name}")
                 user.add_task(file)
                 c = user.curent_task()
                 if c:
@@ -178,7 +178,7 @@ class Bot(Updater):
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
         if user:
             if user.tasks().count() < tasks_number:
-                filename = f"files/{str(uuid4())}_answer.txt"
+                filename = f"files/{user.curent_task().id}_{str(uuid4())}_answer.txt"
                 file = open(filename, 'w')
                 file.write(update.message.text)
                 file.close()
