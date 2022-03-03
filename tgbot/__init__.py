@@ -154,7 +154,7 @@ class Bot(Updater):
                                 context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
                     else:   
                         update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
-        elif update.message.text.lower() == "Qayta yuborish":
+        elif update.message.text.lower() == "qayta yuborish":
             update.message.reply_html( user.curent_task().description + "<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
             return TASKS
 
