@@ -26,7 +26,7 @@ admins = [1238844694]
 
 NAME, NUMBER, REGION, BIRTH, TASKS, POST = range(6)
 
-minimum_year,maximum_year = 1990, datetime.now().year
+minimum_year,maximum_year = 1950, datetime.now().year-14
 tasks_number = 10
 
 
