@@ -1,0 +1,10 @@
+{
+    "start":"assalom alekum xush kelibsiz nma gap",
+    "name":"Ism familyangizni to'liq kiriting",
+    "invalid_name":"ISm va Familyangizni to'g'ri kiritng",
+    "phone":"Telefon raqamingizni yuboring",
+    "region":"Yashash manzilingizni tanlang",
+    "birth":"Tug'ulgan yilingizni kiriting",
+    "invalid_birth":"Tug'ulgan yilingiz faqat sonlarda bo'lish kerak masalan: 1996",
+    "range_birth":"Sizning yoshingiz to'g'ri kelmadi"
+}
