@@ -16,6 +16,7 @@ from telegram.ext import (
     RegexHandler
 )
 from bot.models import Region, User
+from excel import makeexcelData
 from utils import distribute
 
 
@@ -33,7 +34,7 @@ tasks_number = 10
 
 class Bot(Updater):
     def __init__(self, *args, **kwargs):
-        super(Bot, self).__init__("1955026889:AAFfjBn0PRv-z3-QA_yx2uG_e86XbvF8tho")
+        super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
 
         not_start = ~Filters.regex("^/start$")
         self.conversation = ConversationHandler(
@@ -69,6 +70,7 @@ class Bot(Updater):
                 CommandHandler('post', self.post)
             ]
         )
+        self.dispatcher.add_handler(CommandHandler('data', self.data))
         self.dispatcher.add_handler(self.conversation)
         self.start_polling()
         self.idle()
@@ -215,3 +217,7 @@ class Bot(Updater):
                 print(e)
         update.callback_query.message.reply_text("Habar barcha bot foydalanuvchilarga yuborildi!")
         return -1
+    
+    def data(self, update:Update, context:CallbackContext):
+        if update.message.from_user.id in admins:
+            update.message.from_user.send_document(makeexcelData(), 'data.xlsx')
