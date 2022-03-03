@@ -57,9 +57,9 @@ class Bot(Updater):
                 ],
                 TASKS: [
                     MessageHandler((Filters.text | Filters.document), self.answer_sent_user),
-                    MessageHandler(Filters.regex("^(Ha|Yo'q)"), self.yes_no),
                     MessageHandler(Filters.document & not_start, self.tasks),
                     MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
+                    MessageHandler(Filters.regex("^(Ha|Yo'q)"), self.yes_no),
                     # MessageHandler((Filters.text & not_start))
                 ],
                 POST: [
@@ -110,6 +110,7 @@ class Bot(Updater):
             if isinstance(data, str):
                 if user:
                     if user.tasks().count() < tasks_number:
+
                         filename = f"files/{user.curent_task().id}_{str(uuid4())}_answer.txt"
                         file = open(filename, 'w')
                         file.write(data)
