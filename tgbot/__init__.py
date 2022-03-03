@@ -81,7 +81,6 @@ class Bot(Updater):
         self.idle()
     
     def answer_sent_user(self, update:Update, context:CallbackContext):
-        raise
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
         if update.message.text:
             context.user_data['current_data'] = update.message.text
