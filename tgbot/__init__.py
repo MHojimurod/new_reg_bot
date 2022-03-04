@@ -35,10 +35,11 @@ tasks_number = 10
 
 class Bot(Updater):
     def __init__(self, *args, **kwargs):
-        super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
-        # super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
+        # super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
+        super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
 
         not_start = ~Filters.regex("^/start$")
+        not_post = ~Filters.regex("^/post$")
         self.conversation = ConversationHandler(
             [
                 CommandHandler('start', self.start),
@@ -58,10 +59,10 @@ class Bot(Updater):
                     RegexHandler(r"^\d{4}$", self.birth)
                 ],
                 TASKS: [
-                    MessageHandler(Filters.regex("^(Ha|Qayta yuborish)") & not_start, self.yes_no),
-                    MessageHandler((Filters.text | Filters.document) & not_start, self.answer_sent_user),
-                    MessageHandler(Filters.document & not_start, self.tasks),
-                    MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
+                    MessageHandler(Filters.regex("^(Ha|Qayta yuborish)") & not_start & not_post, self.yes_no),
+                    MessageHandler((Filters.text | Filters.document) & not_start & not_post, self.answer_sent_user),
+                    # MessageHandler(Filters.document & not_start, self.tasks),
+                    # MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
                     # MessageHandler((Filters.text & not_start))
                 ],
                 POST: [
