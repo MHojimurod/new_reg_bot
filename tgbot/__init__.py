@@ -134,7 +134,7 @@ class Bot(Updater):
             c = task.user.curent_task()
             try:
                 context.bot.send_message(task.user.chat_id,
-                "Sizning javobingiz rad etildi!\nIstasangiz qayta yuboring yoki bo'ttan yoqolin!")
+                "Sizning javobingiz rad etildi!\nIstasangiz qayta yuboring")
             except:...
             if c:
                 try:
