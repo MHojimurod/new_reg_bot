@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import pathlib
+from time import sleep, time
 from uuid import uuid4
 import zipfile
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, Message, PassportElementErrorSelfie, ReplyKeyboardMarkup, ReplyKeyboardRemove, ReplyMarkup, Update
@@ -35,9 +36,8 @@ tasks_number = 10
 
 class Bot(Updater):
     def __init__(self, *args, **kwargs):
-        # super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
-        super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
-
+        super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
+        # super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
         not_start = ~Filters.regex("^/start$")
         not_post = ~Filters.regex("^/post$")
         self.conversation = ConversationHandler(
@@ -69,7 +69,7 @@ class Bot(Updater):
                     MessageHandler(Filters.photo, self.photo),
                     CommandHandler('skip', self.skip),
                     MessageHandler(Filters.text & not_start, self.text),
-                    CallbackQueryHandler(self.send, pattern="^send_current_post"),
+                    CallbackQueryHandler(self.send, pattern="^send_current_post", run_async=True),
                     MessageHandler((Filters.all & not_start), self.error_type)
                 ]
             },
@@ -224,7 +224,7 @@ class Bot(Updater):
                             print(e)
                     update.message.reply_text("Javobingiz tekishirilmoqda.Agar siz topshiriqdan o'tsangiz o'zimiz habar beramiz", reply_markup=ReplyKeyboardRemove())
                 else:   
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
                 
 
 
@@ -408,7 +408,8 @@ class Bot(Updater):
         
     def send(self, update:Update, context:CallbackContext):
         users = User.objects.all()
-        for user in  users:
+        peer = 0
+        for user in users:
             try:
                 if context.user_data['post']['image']:
                     context.bot.send_photo(chat_id=user.chat_id, photo=context.user_data['post']['image'][-1], caption=context.user_data['post']['text'])
@@ -416,6 +417,10 @@ class Bot(Updater):
                     context.bot.send_message(user.chat_id,context.user_data['post']['text'])
             except Exception as e:
                 print(e)
+            peer += 1
+            if peer == 20:
+                sleep(2)
+            
         update.callback_query.message.reply_text("Habar barcha bot foydalanuvchilarga yuborildi!")
         return -1
     
