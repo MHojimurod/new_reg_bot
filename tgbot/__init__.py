@@ -160,6 +160,9 @@ class Bot(Updater):
     
     def answer_sent_user(self, update:Update, context:CallbackContext):
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+        if user.panding_answer():
+                update.message.reply_text("Iltimos yuborgan javobingizni javobi kelishini kuting!")
+                return TASKS
         if update.message.text:
             context.user_data['current_data'] = update.message.text
             context.user_data['current_data_type'] = 0
