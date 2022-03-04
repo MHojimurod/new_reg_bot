@@ -99,9 +99,10 @@ class Bot(Updater):
             update.callback_query.answer("Javobingiz qabul qilindi!")
             for message in task.messages():
                 context.bot.edit_message_caption(message.chat_id, message.message_id, caption="Bu javob tasdiqlandi!")
-            
-            context.bot.send_message(task.user.chat_id,
-                "Sizning javobingiz qabul qilindi!\nKeyingi topshiriqqa o'tishingiz mumkin!")
+            try:
+                context.bot.send_message(task.user.chat_id,
+                    "Sizning javobingiz qabul qilindi!\nKeyingi topshiriqqa o'tishingiz mumkin!")
+            except:...
             c = task.user.curent_task()
             if c:
                 context.bot.send_message(task.user.chat_id, c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", parse_mode="HTML")
@@ -130,11 +131,15 @@ class Bot(Updater):
                 context.bot.edit_message_caption(
                     message.chat_id, message.message_id, caption="Bu javob rad etib bo'lindi!!")
             c = task.user.curent_task()
-            context.bot.send_message(task.user.chat_id,
+            try:
+                context.bot.send_message(task.user.chat_id,
                 "Sizning javobingiz rad etildi!\nIstasangiz qayta yuboring yoki bo'ttan yoqolin!")
+            except:...
             if c:
-                context.bot.send_message(task.user.chat_id, c.description +
-                                         "\n<b>.docx .pdf text</b> formatida yuboring!", parse_mode="HTML")
+                try:
+                    context.bot.send_message(task.user.chat_id, c.description +
+                                     "\n<b>.docx .pdf text</b> formatida yuboring!", parse_mode="HTML")
+                except:...
                 return TASKS
             else:
                 context.bot.send_message(
@@ -147,7 +152,9 @@ class Bot(Updater):
                     os.remove(task.document)
                 zipFile.close()
                 for admin in admins:
-                    context.bot.send_document(chat_id=admin,document=open(f"{task.user.chat_id}_{task.user.name}.zip", 'rb'))
+                    try:
+                        context.bot.send_document(chat_id=admin,document=open(f"{task.user.chat_id}_{task.user.name}.zip", 'rb'))
+                    except:...
             return TASKS
     
     def answer_sent_user(self, update:Update, context:CallbackContext):
@@ -211,22 +218,7 @@ class Bot(Updater):
 
                         except Exception as e:
                             print(e)
-                    update.message.reply_text("Javobingiz krisalarga yuborildi!\nTez orada  yo yaxshi bo'ladi yo' yaxshilikka bo'ladi!\n\nUngacha siqilib turin!", reply_markup=ReplyKeyboardRemove())
-                    # c = user.curent_task()
-                    # if c:
-                    #     update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
-                    #     return TASKS
-                    # else:
-                    #     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
-                    #     zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
-                    #     tasks = user.tasks()
-                    #     for task in tasks:
-                    #         print(f"{root}")
-                    #         zipFile.write(os.path.join(root, task.document), os.path.relpath(os.path.join(root, task.document)))
-                    #         os.remove(task.document)
-                    #     zipFile.close()
-                    #     for admin in admins:
-                    #         context.bot.send_document(chat_id=admin,document=open(f"{user.chat_id}_{user.name}.zip", 'rb'))
+                    update.message.reply_text("Javobingiz tekishirilmoqda.Agar siz topshiriqdan o'tsangiz o'zimiz habar beramiz", reply_markup=ReplyKeyboardRemove())
                 else:   
                     update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
                 
