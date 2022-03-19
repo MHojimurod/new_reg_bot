@@ -15,36 +15,39 @@ from telegram.ext import (
     CallbackQueryHandler,
     RegexHandler
 )
-from bot.models import Region, Task, User
+from bot.models import Region, Task, User, ZoomUser
 from excel import makeexcelData
+from tgbot.post import Post
+from tgbot.zoom import Zoom
 from utils import distribute
+
+from .constants import *
 
 
 
 root = pathlib.Path(__file__).resolve().parent.parent
-admins = [1238844694,429121485,2047287023,897491469,5087614516]
-
-
-NAME, NUMBER, REGION, BIRTH, TASKS, POST = range(6)
-
-minimum_year,maximum_year = 1950, datetime.now().year-14
-tasks_number = 10
 
 
 
 
 
-class Bot(Updater):
+
+
+
+
+class Bot(Updater, Zoom, Post):
     def __init__(self, *args, **kwargs):
         # super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
         super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
 
         not_start = ~Filters.regex("^/start$")
         not_post = ~Filters.regex("^/post$")
-        self.conversation = ConversationHandler(
+
+
+
+        self.shogird_tushish_conversation = ConversationHandler(
             [
-                CommandHandler('start', self.start),
-                CommandHandler('post', self.post)
+                MessageHandler(Filters.regex(f"^{shogird_tushish}$"), self.shogird),
             ],
             {
                 NAME: [
@@ -61,31 +64,126 @@ class Bot(Updater):
                     MessageHandler(Filters.text & not_start, self.birthday_month_year)
                 ],
                 TASKS: [
+                    CommandHandler('start', self.start),
                     MessageHandler(Filters.regex("^(Ha|Qayta yuborish)") & not_start & not_post, self.yes_no),
-                    MessageHandler((Filters.text | Filters.document) & not_start & not_post, self.answer_sent_user),
-                    # MessageHandler(Filters.document & not_start, self.tasks),
-                    # MessageHandler((Filters.text & not_start) & ~Filters.regex("^/"), self.task_text),
-                    # MessageHandler((Filters.text & not_start))
+                    MessageHandler((Filters.text | Filters.document)  & not_post , self.answer_sent_user),
                 ],
-                POST: [
-                    MessageHandler(Filters.photo, self.photo),
-                    CommandHandler('skip', self.skip),
-                    MessageHandler(Filters.text & not_start, self.text),
-                    CallbackQueryHandler(self.send, pattern="^send_current_post", run_async=True),
-                    MessageHandler((Filters.all & not_start), self.error_type)
-                ]
             },
             [
                 CommandHandler('start', self.start),
-                CommandHandler('post', self.post)
             ]
         )
+
+        self.zoom_conversation = ConversationHandler(
+            [
+                MessageHandler(Filters.regex(f"^{zoomga_yozilish}$") & not_start,  self.zoomga_yozilish_handler),
+            ],
+            {
+                ZOOM_NAME: [
+                    MessageHandler(Filters.text & not_start, self.name_zoom)
+                ],
+                ZOOM_NUMBER: [
+                    MessageHandler(Filters.contact & not_start, self.number_zoom)
+                ],
+            },
+            [
+                CommandHandler('start', self.start),
+            ]
+        )
+
+        self.post_conversation = ConversationHandler(
+            [
+                CommandHandler('post', self.post_start),
+            ],
+            {
+                POST_TYPE: [
+                    MessageHandler(Filters.text, self.post_type)
+                ],
+                POST_IMAGE: [
+                    MessageHandler(Filters.photo, self.post_image),
+                    CommandHandler('skip', self.skip)
+                    ],
+                POST_TEXT: [MessageHandler(Filters.text & not_start, self.post_text)],
+                CHECK_POST: [
+                    CallbackQueryHandler(self.send_post, pattern="^send_current_post"),
+                    CallbackQueryHandler(self.error_post, pattern="^error_post")
+                    ]
+            },
+            [
+                
+            ]
+        )
+
+        # self.dispatcher.add_handler(CommandHandler('post', self.post_))
         self.dispatcher.add_handler(CommandHandler('data', self.data))
         self.dispatcher.add_handler(CallbackQueryHandler(self.accept_task, pattern="^accept_answer"))
         self.dispatcher.add_handler(CallbackQueryHandler(self.reject_task, pattern="^reject_answer"))
-        self.dispatcher.add_handler(self.conversation)
+        self.dispatcher.add_handler(self.shogird_tushish_conversation)
+        self.dispatcher.add_handler(self.zoom_conversation)
+        self.dispatcher.add_handler(self.post_conversation)
+        self.dispatcher.add_handler(CommandHandler("start", self.start))
         self.start_polling()
         self.idle()
+    
+    def shogird(self, update:Update, context:CallbackContext):
+        """start a new conversation"""
+        user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+        if not user:
+            context.user_data['register'] = {}
+            update.message.reply_text("Assalom alekum Xush kelibsiz Ism Familyangizni kiriting!",reply_markup=ReplyKeyboardRemove())
+            return NAME
+        else:
+            if user.panding_answer():
+                update.message.reply_text("Iltimos yuborgan javobingizni javobi kelishini kuting!")
+                return TASKS
+            c = user.curent_task()
+            if c:
+
+                update.message.reply_text("Topshiriqlarni yuboring!")
+                update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!",
+                                          reply_markup=ReplyKeyboardRemove())
+                return TASKS
+            else:
+                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+    
+
+    # def start(self, update:Update, context:CallbackContext):
+    #     """start a new conversation"""
+    #     user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+    #     if not user:
+    #         context.user_data['register'] = {}
+    #         update.message.reply_text("Assalom alekum Xush kelibsiz Ism Familyangizni kiriting!",reply_markup=ReplyKeyboardRemove())
+    #         return NAME
+    #     else:
+    #         if user.panding_answer():
+    #             update.message.reply_text("Iltimos yuborgan javobingizni javobi kelishini kuting!")
+    #             return TASKS
+    #         c = user.curent_task()
+    #         if c:
+
+    #             update.message.reply_text("Topshiriqlarni yuboring!")
+    #             update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!",
+    #                                       reply_markup=ReplyKeyboardRemove())
+    #             return TASKS
+    #         else:
+    #             update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+
+    def start(self, update:Update, context:CallbackContext):
+        # user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
+        # if not user:
+        context.user_data['register'] = {}
+        context.user_data['zoom'] = {}
+        update.message.reply_text("Assalom alekum Xush kelibsiz!\n\nTanlang!",reply_markup=ReplyKeyboardMarkup(
+            [
+                [
+                    shogird_tushish,
+                    (zoomga_yozilish if not ZoomUser.objects.filter(chat_id=update.message.from_user.id).exists() else "") 
+                ]
+            ]
+        , resize_keyboard=True))
+        return ConversationHandler.END
+        # else:
+            # print('xxxx')
 
     def birthday_month_year(self, update:Update, context:CallbackContext):
         update.message.reply_text("Iltimos faqat tug'ilgan yilingizni yozing: Masalan: 2002")
@@ -166,6 +264,9 @@ class Bot(Updater):
             return TASKS
     
     def answer_sent_user(self, update:Update, context:CallbackContext):
+        if update.message.text == "/start":
+            return self.start(update, context)
+        print(update.message.text)
         user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
         if user.panding_answer():
                 update.message.reply_text("Iltimos yuborgan javobingizni javobi kelishini kuting!")
@@ -242,26 +343,9 @@ class Bot(Updater):
             return TASKS
     
 
-    def start(self, update:Update, context:CallbackContext):
-        """start a new conversation"""
-        user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
-        if not user:
-            context.user_data['register'] = {}
-            update.message.reply_text("Assalom alekum Xush kelibsiz Ism Familyangizni kiriting!",reply_markup=ReplyKeyboardRemove())
-            return NAME
-        else:
-            if user.panding_answer():
-                update.message.reply_text("Iltimos yuborgan javobingizni javobi kelishini kuting!")
-                return TASKS
-            c = user.curent_task()
-            if c:
+    
+    
 
-                update.message.reply_text("Topshiriqlarni yuboring!")
-                update.message.reply_html(c.description + "\n<b>.docx .pdf text</b> formatida yuboring!",
-                                          reply_markup=ReplyKeyboardRemove())
-                return TASKS
-            else:
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
     def name(self, update:Update, context:CallbackContext):
         if len(update.message.text.split()) > 1:
             context.user_data['register']['name'] = update.message.text
@@ -376,60 +460,12 @@ class Bot(Updater):
     
 
 
-    def post(self, update:Update, context:CallbackContext):
-        if update.message.from_user.id in admins:
-            context.user_data['post'] = {}
-            update.message.reply_text("Iltimos post uchun suratni yuboring yoki /skip kommandasini yuboring!")
-            return POST
-    
-    def skip(self, update:Update, context:CallbackContext):
-        context.user_data['post']['image'] = None
-        update.message.reply_text("Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
-        return POST
-    def photo(self, update:Update, context:CallbackContext):
-        context.user_data['post']['image'] = update.message.photo
-        update.message.reply_text("Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
-        return POST
-    
-    def text(self, update:Update, context:CallbackContext):
-        context.user_data['post']['text'] = update.message.text
-        update.message.reply_text("marhamat sizning postingiz!\n\nMaq'ul bo'lsa yuborish tugmasini bosing!")
-        if context.user_data['post']['image']:
-            update.message.reply_photo(photo=context.user_data['post']['image'][-1], caption=context.user_data['post']['text'], reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("Yuborish!", callback_data="send_current_post")
-                    ]
-                ]
-            ))
-            return POST
-        else:
-            update.message.reply_text(context.user_data['post']['text'], reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("Yuborish!", callback_data="send_current_post")
-                    ]
-                ]
-            ))
-            return POST
         
-    def send(self, update:Update, context:CallbackContext):
-        users = User.objects.all()
-        peer = 0
-        for user in users:
-            try:
-                if context.user_data['post']['image']:
-                    context.bot.send_photo(chat_id=user.chat_id, photo=context.user_data['post']['image'][-1], caption=context.user_data['post']['text'])
-                else:
-                    context.bot.send_message(user.chat_id,context.user_data['post']['text'])
-            except Exception as e:
-                print(e)
-            peer += 1
-            if peer == 20:
-                sleep(2)
-            
-        update.callback_query.message.reply_text("Habar barcha bot foydalanuvchilarga yuborildi!")
-        return -1
+    
+    
+    
+        
+    
     
     def data(self, update:Update, context:CallbackContext):
         if update.message.from_user.id in admins:

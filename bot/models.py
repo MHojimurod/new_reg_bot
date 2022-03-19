@@ -1,4 +1,5 @@
 from datetime import datetime
+from email.policy import default
 from xml.dom.minidom import Document
 from django.db import models
 from django.db.models.query import QuerySet
@@ -11,9 +12,10 @@ class User(models.Model):
     id:int
     chat_id:int = models.IntegerField()
     name:str = models.CharField(max_length=255)
-    region:"Region" = models.ForeignKey("Region", on_delete=models.SET_NULL, null=True)
+    region:"Region" = models.ForeignKey("Region", on_delete=models.SET_NULL, null=True, blank=True)
     number:int = models.CharField(max_length=255)
-    birthday:int = models.IntegerField()
+    birthday:int = models.IntegerField(null=True, blank=True)
+    zoom:bool = models.BooleanField(default=False)
     def tasks(self) -> "QuerySet[Task]":
         return Task.objects.filter(user=self, accepted=1)
     
@@ -33,6 +35,18 @@ class User(models.Model):
         return questions[self.tasks().count()] if questions.count() > self.tasks().count() else None
     def __str__(self):
         return self.name
+
+
+class ZoomUser(models.Model):
+    id:int
+    chat_id:int = models.IntegerField(default=0)
+    name:str = models.CharField(max_length=255)
+    number:int = models.CharField(max_length=255)
+    def __str__(self):
+        return self.name
+    class Meta:
+        db_table = "ZoomFoydalanuvchilar"
+        verbose_name = "ZoomFoydalanuvchilar"
 
 class Task(models.Model):
     id:int
