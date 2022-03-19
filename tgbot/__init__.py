@@ -126,6 +126,7 @@ class Bot(Updater, Zoom, Post):
         self.dispatcher.add_handler(self.post_conversation)
         self.dispatcher.add_handler(CommandHandler("start", self.start))
         self.dispatcher.add_handler(MessageHandler(Filters.regex("^Menu$"), self.start))
+        print(self.bot.get_me())
         self.start_polling()
         self.idle()
     
