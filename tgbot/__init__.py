@@ -36,8 +36,8 @@ root = pathlib.Path(__file__).resolve().parent.parent
 
 class Bot(Updater, Zoom, Post):
     def __init__(self, *args, **kwargs):
-        # super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
-        super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
+        super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
+        # super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
 
         not_start = ~Filters.regex("^/start$")
         not_post = ~Filters.regex("^/post$")
