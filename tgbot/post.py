@@ -12,18 +12,18 @@ class Post:
             context.user_data['post'] = {}
             update.message.reply_text("Iltimos postni kimlarga yuborilishini tanlang!", reply_markup=ReplyKeyboardMarkup([
                 [
-                    "trening ishtirokchilari",
-                    "shogirdlar"
+                    "Trening ishtirokchilariga",
+                    "Shogirdlarga"
                 ],
                 [
-                    "hammaga"
+                    "Hammaga"
                 ]
             ], resize_keyboard=True))
             return POST_TYPE
 
     def post_type(self, update: Update, context: CallbackContext):
-        context.user_data['post']['type'] = 0 if update.message.text == "trening ishtirokchilari" else (
-            1 if update.message.text == "shogirdlar" else 2)
+        context.user_data['post']['type'] = 0 if update.message.text == "Trening ishtirokchilariga" else (
+            1 if update.message.text == "Shogirdlarga" else 2)
         update.message.reply_text(
             "Iltimos endi post uchun suratni yuboring yoki /skip buyrug'ini yuboring!")
         return POST_IMAGE
@@ -115,14 +115,53 @@ class Post:
         update.message.reply_text(
             "Iltimos postni kimlarga yuborilishini tanlang!", reply_markup=ReplyKeyboardMarkup([
                 [
-                    "trening ishtirokchilari",
-                    "shogirdlar"
+                    "Trening ishtirokchilariga",
+                    "Shogirdlarga"
                 ],
                 [
-                    "hammaga"
+                    "Hammaga"
                 ]
             ], resize_keyboard=True))
         return POST_TYPE
+    
+    def post_forward(self, update:Update, context:CallbackContext):
+        if not update.message.from_user.id in admins:
+            return -1
+        text = update.message.text if update.message.text else update.message.caption
+        img = update.message.photo
+        context.user_data['post']['text'] = text
+        context.user_data['post']['image'] = img
+        context.user_data['post']['text_entities'] = update.message.entities if update.message.entities else update.message.caption_entities
+        update.message.reply_text(
+            "marhamat sizning postingiz!\n\nMaq'ul bo'lsa yuborish tugmasini bosing!")
+        if context.user_data['post']['image']:
+            update.message.reply_photo(photo=context.user_data['post']['image'][-1], caption=context.user_data['post']['text'],
+            caption_entities=context.user_data['post']['text_entities'],
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Yuborish!", callback_data="send_current_post"),
+                        InlineKeyboardButton(
+                            "Qayta yozish", callback_data="error_post")
+                    ]
+                ]
+            ))
+            return CHECK_POST
+        else:
+            update.message.reply_text(context.user_data['post']['text'],
+            entities=context.user_data['post']['text_entities'], reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Yuborish!", callback_data="send_current_post"),
+                        InlineKeyboardButton(
+                            "Qayta yozish", callback_data="error_post")
+                    ]
+                ]
+            ))
+            return CHECK_POST
+
 
         # Post.post_send(update, context)
         # return -1

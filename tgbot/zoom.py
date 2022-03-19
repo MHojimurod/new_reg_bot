@@ -24,7 +24,7 @@ class Zoom:
         ,resize_keyboard=True))
                 return -1
             else:
-                update.message.reply_text("Iltimos ismingizni yuboring!")
+                update.message.reply_text("Ism familyangizni kiriting!")
                 return ZOOM_NAME
         else:
             update.message.reply_text("Siz allaqachon ro'yhatdan o'tib bo'ldingiz!")
@@ -50,9 +50,9 @@ class Zoom:
     def number_zoom(self, update:Update, context:CallbackContext):
         context.user_data['zoom']['number'] = update.message.contact.phone_number
         ZoomUser.objects.create(chat_id=update.message.from_user.id, **context.user_data['zoom'])
-        update.message.reply_text("Siz zoomga muvaffaqiyatli ro'yhatdan o'tdingiz!\nAgarda shogird tushishni hohlasangiz pastdagi shogird tushish tugmasini bosing", reply_markup=ReplyKeyboardMarkup(
+        update.message.reply_text("Siz muvoffaqiyatli ro'yhatdan o'tdingiz!", reply_markup=ReplyKeyboardMarkup(
             [[
-                shogird_tushish
+                "Menu"
             ]]
-        ,resize_keyboard=True))
+        ,resize_keyboard=True) )
         return -1

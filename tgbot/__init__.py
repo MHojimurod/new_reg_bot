@@ -1,10 +1,9 @@
 from datetime import datetime
 import os
 import pathlib
-from time import sleep, time
 from uuid import uuid4
 import zipfile
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, Message, PassportElementErrorSelfie, ReplyKeyboardMarkup, ReplyKeyboardRemove, ReplyMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
     CallbackContext,
@@ -16,7 +15,7 @@ from telegram.ext import (
     RegexHandler
 )
 from bot.models import Region, Task, User, ZoomUser
-from excel import makeexcelData
+from excel import makeexcelData, makeexcelDataZoom
 from tgbot.post import Post
 from tgbot.zoom import Zoom
 from utils import distribute
@@ -71,6 +70,7 @@ class Bot(Updater, Zoom, Post):
             },
             [
                 CommandHandler('start', self.start),
+                
             ]
         )
 
@@ -100,6 +100,7 @@ class Bot(Updater, Zoom, Post):
                     MessageHandler(Filters.text, self.post_type)
                 ],
                 POST_IMAGE: [
+                    MessageHandler((Filters.photo & Filters.caption), self.post_forward),
                     MessageHandler(Filters.photo, self.post_image),
                     CommandHandler('skip', self.skip)
                     ],
@@ -114,6 +115,8 @@ class Bot(Updater, Zoom, Post):
             ]
         )
 
+
+
         # self.dispatcher.add_handler(CommandHandler('post', self.post_))
         self.dispatcher.add_handler(CommandHandler('data', self.data))
         self.dispatcher.add_handler(CallbackQueryHandler(self.accept_task, pattern="^accept_answer"))
@@ -122,6 +125,7 @@ class Bot(Updater, Zoom, Post):
         self.dispatcher.add_handler(self.zoom_conversation)
         self.dispatcher.add_handler(self.post_conversation)
         self.dispatcher.add_handler(CommandHandler("start", self.start))
+        self.dispatcher.add_handler(MessageHandler(Filters.regex("^Menu$"), self.start))
         self.start_polling()
         self.idle()
     
@@ -191,13 +195,6 @@ class Bot(Updater, Zoom, Post):
 
 
     def accept_task(self, update:Update, context:CallbackContext):
-        # user:User = User.objects.filter(chat_id=update.callback_query.from_user.id).first()
-        # if user.panding_answer():
-        #     update.callback_query.answer("Sizda yuborilgan javobingizni kiriting!")
-        #     return TASKS
-        # else:
-        #     update.callback_query.answer("Sizda yuborilgan javobingizni kiriting!")
-        #     return TASKS
         data = update.callback_query.data.split(":")
         task:Task = Task.objects.filter(id=int(data[1])).first()
         if task:
@@ -378,7 +375,8 @@ class Bot(Updater, Zoom, Post):
     def birth(self, update:Update, context:CallbackContext):
         if update.message.text.isdigit():
             year = int(update.message.text.strip())
-            if year > minimum_year and year < maximum_year:
+            # if year > minimum_year and year < maximum_year:
+            if year > 1990 and year < 2007:
                 user:User = User.objects.create(chat_id=update.message.from_user.id, **context.user_data['register'], birthday=year)
                 update.message.reply_text("Muvaffaqiyatli ro'yxatdan o'tdingiz!\nIltimos endi topshiriqlarni yuboring!")
                 c = user.curent_task()
@@ -469,4 +467,5 @@ class Bot(Updater, Zoom, Post):
     
     def data(self, update:Update, context:CallbackContext):
         if update.message.from_user.id in admins:
-            update.message.from_user.send_document(makeexcelData(), 'data.xlsx')
+            update.message.from_user.send_document(makeexcelData(), 'shogirdlar.xlsx')
+            update.message.from_user.send_document(makeexcelDataZoom(), 'trening.xlsx')
