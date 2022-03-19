@@ -22,7 +22,7 @@ from utils import distribute
 
 
 root = pathlib.Path(__file__).resolve().parent.parent
-admins = [1238844694,429121485]
+admins = [1238844694,429121485,2047287023,897491469,5087614516]
 
 
 NAME, NUMBER, REGION, BIRTH, TASKS, POST = range(6)
@@ -56,7 +56,8 @@ class Bot(Updater):
                     MessageHandler(Filters.text & not_start, self.region)
                 ],
                 BIRTH: [
-                    RegexHandler(r"^\d{4}$", self.birth)
+                    RegexHandler(r"^\d{4}$", self.birth),
+                    MessageHandler(Filters.text & not_start, self.birthday_month_year)
                 ],
                 TASKS: [
                     MessageHandler(Filters.regex("^(Ha|Qayta yuborish)") & not_start & not_post, self.yes_no),
@@ -84,7 +85,12 @@ class Bot(Updater):
         self.dispatcher.add_handler(self.conversation)
         self.start_polling()
         self.idle()
-    
+
+    def birthday_month_year(self, update:Update, context:CallbackContext):
+        update.message.reply_text("Iltimos faqat tug'ilgan yilingizni yozing: Masalan: 2002")
+        return BIRTH
+
+
     def accept_task(self, update:Update, context:CallbackContext):
         # user:User = User.objects.filter(chat_id=update.callback_query.from_user.id).first()
         # if user.panding_answer():
