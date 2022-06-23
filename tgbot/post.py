@@ -8,8 +8,11 @@ from bot.models import User, ZoomUser
 
 class Post:
     def post_start(self, update: Update, context: CallbackContext):
+        print("try posting", update.message.from_user.first_name, update.message.from_user.id)
         if update.message.from_user.id in admins:
+            print("posting", update.message.from_user.first_name)
             context.user_data['post'] = {}
+            print("posting", update.message.from_user.first_name, "success")
             update.message.reply_text("Iltimos postni kimlarga yuborilishini tanlang!", reply_markup=ReplyKeyboardMarkup([
                 [
                     "Trening ishtirokchilariga",
@@ -24,30 +27,56 @@ class Post:
     def post_type(self, update: Update, context: CallbackContext):
         context.user_data['post']['type'] = 0 if update.message.text == "Trening ishtirokchilariga" else (
             1 if update.message.text == "Shogirdlarga" else 2)
+        print("post type: ", update.message.text, context.user_data['post']['type'])
         update.message.reply_text(
-            "Iltimos endi post uchun suratni yuboring yoki /skip buyrug'ini yuboring!")
+            "Iltimos endi post uchun suratni yuboring yoki /skip buyrug'ini yuboring!", reply_markup=ReplyKeyboardRemove())
         return POST_IMAGE
 
     def skip(self, update: Update, context: CallbackContext):
         context.user_data['post']['image'] = None
+        context.user_data['post']['video'] = None
+        context.user_data['post']['mode'] = 0
         update.message.reply_text(
             "Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
         return POST_TEXT
 
     def post_image(self, update: Update, context: CallbackContext):
         context.user_data['post']['image'] = update.message.photo
+        context.user_data['post']['mode'] = 1
+        update.message.reply_text(
+            "Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
+        return POST_TEXT
+
+    def post_video(self, update: Update, context: CallbackContext):
+        context.user_data['post']['video'] = update.message.video
+        context.user_data['post']['mode'] = 2
         update.message.reply_text(
             "Iltimos endi post uchun matn yuboring!", reply_markup=ReplyKeyboardRemove())
         return POST_TEXT
 
     def post_text(self, update: Update, context: CallbackContext):
+        print(update)
         context.user_data['post']['text'] = update.message.text
         context.user_data['post']['text_entities'] = update.message.entities
 
         update.message.reply_text(
             "marhamat sizning postingiz!\n\nMaq'ul bo'lsa yuborish tugmasini bosing!")
-        if context.user_data['post']['image']:
+        if context.user_data['post']['mode'] == 1:
             update.message.reply_photo(photo=context.user_data['post']['image'][-1], caption=context.user_data['post']['text'],
+            caption_entities=context.user_data['post']['text_entities'],
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Yuborish!", callback_data="send_current_post"),
+                        InlineKeyboardButton(
+                            "Qayta yozish", callback_data="error_post")
+                    ]
+                ]
+            ))
+            return CHECK_POST
+        elif context.user_data['post']['mode'] == 2:
+            update.message.reply_video(video=context.user_data['post']['video'], caption=context.user_data['post']['text'],
             caption_entities=context.user_data['post']['text_entities'],
             reply_markup=InlineKeyboardMarkup(
                 [
@@ -79,13 +108,14 @@ class Post:
         ),) if context.user_data['post']['type'] == 0 else (User.objects.all(), ZoomUser.objects.all()))
         sent_ids = []
         peer = 0
+        update.callback_query.message.reply_text("Post yuborilmoqda!")
         for types in users:
             for user in types:
                 peer += 1
                 if user.id in sent_ids:
                     continue
                 sent_ids.append(user.id)
-                if context.user_data['post']['image']:
+                if context.user_data['post']['mode'] == 1:
                     try:
                         self.bot.send_photo(
                             chat_id=user.chat_id,
@@ -93,6 +123,20 @@ class Post:
                             photo=context.user_data['post']['image'][-1], caption=context.user_data['post']['text'])
                     except:
                         pass
+                elif context.user_data['post']['mode'] == 2:
+                    self.bot.send_video(chat_id=user.chat_id,video=context.user_data['post']['video'], caption=context.user_data['post']['text'],
+                        caption_entities=context.user_data['post']['text_entities'],
+                        reply_markup=InlineKeyboardMarkup(
+                           [
+                                [
+                                    InlineKeyboardButton(
+                                        "Yuborish!", callback_data="send_current_post"),
+                                    InlineKeyboardButton(
+                                       "Qayta yozish", callback_data="error_post")
+                                ]
+                           ]
+                     ))
+                    return CHECK_POST
                 else:
                     try:
                         self.bot.send_message(
@@ -112,7 +156,9 @@ class Post:
 
     def error_post(self, update: Update, context: CallbackContext):
         context.user_data['post'] = {}
-        update.message.reply_text(
+        update.callback_query.message.delete()
+        user = ( update.message.from_user if update.message else update.callback_query.from_user)
+        user.send_message(
             "Iltimos postni kimlarga yuborilishini tanlang!", reply_markup=ReplyKeyboardMarkup([
                 [
                     "Trening ishtirokchilariga",
