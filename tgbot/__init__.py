@@ -37,7 +37,7 @@ root = pathlib.Path(__file__).resolve().parent.parent
 class Bot(Updater, Zoom, Post):
     def __init__(self, *args, **kwargs):
         super(Bot, self).__init__("5263596793:AAGp-Mwn4tw0v1u0TsxbhtInPmt-yDYzvBI")
-        # super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
+        #super(Bot, self).__init__("1955026889:AAFD98J6x8rW_0pftC4kktkTARDJALfrPGs")
 
         not_start = ~Filters.regex("^/start$")
         not_post = ~Filters.regex("^/post$")
@@ -97,21 +97,23 @@ class Bot(Updater, Zoom, Post):
             ],
             {
                 POST_TYPE: [
-                    MessageHandler(Filters.text, self.post_type)
+                    MessageHandler(Filters.text & not_start & not_post, self.post_type)
                 ],
                 POST_IMAGE: [
-                    MessageHandler((Filters.photo & Filters.caption), self.post_forward),
+                    MessageHandler(((Filters.photo | Filters.video) & Filters.caption), self.post_forward),
                     MessageHandler(Filters.photo, self.post_image),
+                    MessageHandler(Filters.video, self.post_video),
                     CommandHandler('skip', self.skip)
                     ],
-                POST_TEXT: [MessageHandler(Filters.text & not_start, self.post_text)],
+                POST_TEXT: [MessageHandler(Filters.text & not_start & not_post, self.post_text),
+                            MessageHandler((Filters.photo & Filters.caption), self.post_forward)],
                 CHECK_POST: [
                     CallbackQueryHandler(self.send_post, pattern="^send_current_post"),
                     CallbackQueryHandler(self.error_post, pattern="^error_post")
                     ]
             },
             [
-                
+                 CommandHandler('post', self.post_start)
             ]
         )
 
@@ -149,7 +151,7 @@ class Bot(Updater, Zoom, Post):
                                           reply_markup=ReplyKeyboardRemove())
                 return TASKS
             else:
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
     
 
     # def start(self, update:Update, context:CallbackContext):
@@ -176,6 +178,7 @@ class Bot(Updater, Zoom, Post):
     def start(self, update:Update, context:CallbackContext):
         # user:User = User.objects.filter(chat_id=update.message.from_user.id).first()
         # if not user:
+        print("starting!", update.message.from_user.first_name, update.message.from_user.username)
         context.user_data['register'] = {}
         context.user_data['zoom'] = {}
         update.message.reply_text("Assalom alekum Xush kelibsiz!\n\nTanlang!",reply_markup=ReplyKeyboardMarkup(
@@ -213,7 +216,7 @@ class Bot(Updater, Zoom, Post):
                 return TASKS
             else:
                 context.bot.send_message(
-                    task.user.chat_id, "Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    task.user.chat_id, "Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
                 zipFile = zipfile.ZipFile(f"{task.user.chat_id}_{task.user.name}.zip", 'w')
                 tasks = task.user.tasks()
                 for task in tasks:
@@ -247,7 +250,7 @@ class Bot(Updater, Zoom, Post):
                 return TASKS
             else:
                 context.bot.send_message(
-                    task.user.chat_id, "Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    task.user.chat_id, "Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
                 zipFile = zipfile.ZipFile(f"{task.user.chat_id}_{task.user.name}.zip", 'w')
                 tasks = task.user.tasks()
                 for task in tasks:
@@ -330,7 +333,7 @@ class Bot(Updater, Zoom, Post):
                             print(e)
                     update.message.reply_text("Javobingiz tekishirilmoqda.Agar siz topshiriqdan o'tsangiz o'zimiz habar beramiz", reply_markup=ReplyKeyboardRemove())
                 else:   
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
+                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.", reply_markup=ReplyKeyboardRemove())
                 
 
 
@@ -377,7 +380,7 @@ class Bot(Updater, Zoom, Post):
         if update.message.text.isdigit():
             year = int(update.message.text.strip())
             # if year > minimum_year and year < maximum_year:
-            if year > 1990 and year < 2007:
+            if year > 1990 and year < 2002:
                 user:User = User.objects.create(chat_id=update.message.from_user.id, **context.user_data['register'], birthday=year)
                 update.message.reply_text("Muvaffaqiyatli ro'yxatdan o'tdingiz!\nIltimos endi topshiriqlarni yuboring!")
                 c = user.curent_task()
@@ -390,7 +393,7 @@ class Bot(Updater, Zoom, Post):
 
                 return TASKS
             else:
-                update.message.reply_text(f"Tug'ilgan yilingiz 1990 va {datetime.now().year-15} oralig'ida bo'lishi kerak!")
+                update.message.reply_text(f"Tug'ilgan yilingiz 1990 va {datetime.now().year-20} oralig'ida bo'lishi kerak!")
                 return BIRTH
         else:
             update.message.reply_text("Tug'ilgan yilingizni to'g'ri kiriting")
@@ -420,7 +423,7 @@ class Bot(Updater, Zoom, Post):
                     
 
             else:   
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
     
     def error_type(self, update:Update, context:CallbackContext):
         update.message.reply_html("Kechirasiz javoblaringizni faqat <b>.docx .pdf text</b> formatida yubora olasiz!",
@@ -442,7 +445,7 @@ class Bot(Updater, Zoom, Post):
                         c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
+                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.", reply_markup=ReplyKeyboardRemove())
                     zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
                     tasks = user.tasks()
                     for task in tasks:
@@ -455,7 +458,7 @@ class Bot(Updater, Zoom, Post):
                     
 
             else:   
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
+                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.", reply_markup=ReplyKeyboardRemove())
     
 
 
