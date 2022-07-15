@@ -32,7 +32,7 @@ class User(models.Model):
     
     def curent_task(self) -> "Question":
         questions = Question.objects.order_by('id').all()
-        return questions[self.tasks().count()] if questions.count() > self.tasks().count() else None
+        return questions[self.tasks().count()] if questions.count() >= self.tasks().count() else None
     def __str__(self):
         return self.name
 

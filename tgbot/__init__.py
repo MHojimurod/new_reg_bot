@@ -113,6 +113,7 @@ class Bot(Updater, Zoom, Post):
                     ]
             },
             [
+
                  CommandHandler('post', self.post_start)
             ]
         )
@@ -151,7 +152,7 @@ class Bot(Updater, Zoom, Post):
                                           reply_markup=ReplyKeyboardRemove())
                 return TASKS
             else:
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
+                update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.")
     
 
     # def start(self, update:Update, context:CallbackContext):
@@ -216,7 +217,7 @@ class Bot(Updater, Zoom, Post):
                 return TASKS
             else:
                 context.bot.send_message(
-                    task.user.chat_id, "Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
+                    task.user.chat_id, "Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.")
                 zipFile = zipfile.ZipFile(f"{task.user.chat_id}_{task.user.name}.zip", 'w')
                 tasks = task.user.tasks()
                 for task in tasks:
@@ -250,7 +251,7 @@ class Bot(Updater, Zoom, Post):
                 return TASKS
             else:
                 context.bot.send_message(
-                    task.user.chat_id, "Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
+                    task.user.chat_id, "Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.")
                 zipFile = zipfile.ZipFile(f"{task.user.chat_id}_{task.user.name}.zip", 'w')
                 tasks = task.user.tasks()
                 for task in tasks:
@@ -333,7 +334,7 @@ class Bot(Updater, Zoom, Post):
                             print(e)
                     update.message.reply_text("Javobingiz tekishirilmoqda.Agar siz topshiriqdan o'tsangiz o'zimiz habar beramiz", reply_markup=ReplyKeyboardRemove())
                 else:   
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.", reply_markup=ReplyKeyboardRemove())
+                    update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.", reply_markup=ReplyKeyboardRemove())
                 
 
 
@@ -342,10 +343,7 @@ class Bot(Updater, Zoom, Post):
             update.message.reply_html(user.curent_task(
             ).description + "<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
             return TASKS
-    
 
-    
-    
 
     def name(self, update:Update, context:CallbackContext):
         if len(update.message.text.split()) > 1:
@@ -389,7 +387,7 @@ class Bot(Updater, Zoom, Post):
                         c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz")
+                    update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.")
 
                 return TASKS
             else:
@@ -411,7 +409,7 @@ class Bot(Updater, Zoom, Post):
                         c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. Biz sizga tez orada aloqaga chiqamiz", reply_markup=ReplyKeyboardRemove())
+                    update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.", reply_markup=ReplyKeyboardRemove())
                     zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
                     tasks = user.tasks()
                     for task in tasks:
@@ -423,8 +421,8 @@ class Bot(Updater, Zoom, Post):
                     
 
             else:   
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.")
-    
+                update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.")
+
     def error_type(self, update:Update, context:CallbackContext):
         update.message.reply_html("Kechirasiz javoblaringizni faqat <b>.docx .pdf text</b> formatida yubora olasiz!",
                                   reply_markup=ReplyKeyboardRemove())
@@ -445,7 +443,7 @@ class Bot(Updater, Zoom, Post):
                         c.description + "\n<b>.docx .pdf text</b> formatida yuboring!", reply_markup=ReplyKeyboardRemove())
                     return TASKS
                 else:
-                    update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.", reply_markup=ReplyKeyboardRemove())
+                    update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.", reply_markup=ReplyKeyboardRemove())
                     zipFile = zipfile.ZipFile(f"{user.chat_id}_{user.name}.zip", 'w')
                     tasks = user.tasks()
                     for task in tasks:
@@ -458,8 +456,8 @@ class Bot(Updater, Zoom, Post):
                     
 
             else:   
-                update.message.reply_text("Siz topshiriqlarni yakunladingiz ishtirokingiz uchun raxmat. +998971890094 raqamiga telegramdan shartlarni yakunlaganingiz haqida yozing.", reply_markup=ReplyKeyboardRemove())
-    
+                update.message.reply_text("Tabriklaymiz siz sinovlarni muvofaqiyatli tugatdingiz @AlmardonovAkbar mana shu accauntga telegram orqali yozing.", reply_markup=ReplyKeyboardRemove())
+
 
 
         
